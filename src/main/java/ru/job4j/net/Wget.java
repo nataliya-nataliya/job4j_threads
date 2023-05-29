@@ -16,24 +16,6 @@ public class Wget implements Runnable {
         this.speed = speed;
     }
 
-    public void speedLimit(byte[] dataBuffer, FileOutputStream fileOutputStream, int totalBytesRead) {
-        long start = System.nanoTime();
-        try {
-            fileOutputStream.write(dataBuffer, 0, totalBytesRead);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        long finish = System.nanoTime();
-        long diff = finish - start;
-        if ((long) speed * 1000000000L < diff) {
-            try {
-                Thread.sleep(1000L * diff / speed);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     @Override
     public void run() {
         URL fileUrl;
@@ -41,23 +23,29 @@ public class Wget implements Runnable {
             fileUrl = new URL(url);
             String fileName = Paths.get(fileUrl.getPath()).getFileName().toString();
             try (BufferedInputStream in = new BufferedInputStream(fileUrl.openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+                 FileOutputStream fileOutputStream = new FileOutputStream("wget_download_" + fileName)) {
                 byte[] dataBuffer = new byte[1024];
-                int totalBytesRead = 0;
                 int bytesRead;
-                while (totalBytesRead < 1024 && (bytesRead = in.read(dataBuffer, totalBytesRead,
-                        Math.min(1024 - totalBytesRead, dataBuffer.length - totalBytesRead))) != -1) {
-                    totalBytesRead += bytesRead;
-                    if (totalBytesRead == 1024) {
-                        speedLimit(dataBuffer, fileOutputStream, totalBytesRead);
-                        totalBytesRead = 0;
+                long start = System.nanoTime();
+                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                    try {
+                        fileOutputStream.write(dataBuffer, 0, bytesRead);
+                        long finish = System.nanoTime();
+                        long diff = finish - start;
+                        if ((long) speed * 1000000000L < diff) {
+                            try {
+                                Thread.sleep(1000L * diff / speed);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        start = System.nanoTime();
+                    } catch (IOException | RuntimeException e) {
+                        throw new RuntimeException(e);
                     }
                 }
-                if (totalBytesRead > 0) {
-                    speedLimit(dataBuffer, fileOutputStream, totalBytesRead);
-                }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
