@@ -3,6 +3,9 @@ package ru.job4j.sync;
 public class DCLSingleton {
     private static volatile DCLSingleton inst;
 
+    private DCLSingleton() {
+    }
+
     public static DCLSingleton instOf() {
         if (inst == null) {
             synchronized (DCLSingleton.class) {
@@ -12,8 +15,5 @@ public class DCLSingleton {
             }
         }
         return inst;
-    }
-
-    private DCLSingleton() {
     }
 }
