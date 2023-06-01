@@ -16,5 +16,4 @@ class CountTest {
         second.join();
         Assertions.assertEquals(2, count.get());
     }
-
 }
