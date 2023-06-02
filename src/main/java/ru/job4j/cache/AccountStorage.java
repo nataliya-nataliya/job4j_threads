@@ -16,7 +16,7 @@ public class AccountStorage {
     }
 
     public synchronized boolean update(Account account) {
-        return accounts.put(account.id(), account) !=null;
+        return accounts.put(account.id(), account) != null;
     }
 
     public synchronized boolean delete(int id) {
@@ -29,7 +29,7 @@ public class AccountStorage {
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
         boolean isUpdateSourceAndTarget = false;
-        if(getById(fromId).isPresent() && getById(toId).isPresent()) {
+        if (getById(fromId).isPresent() && getById(toId).isPresent()) {
             if (amount <= 0) {
                 throw new IllegalArgumentException("Amount can't be less than or equal to 0");
             }
