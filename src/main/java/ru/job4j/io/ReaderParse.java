@@ -25,7 +25,7 @@ public class ReaderParse {
         try (BufferedInputStream i = new BufferedInputStream(new FileInputStream(file))) {
             StringBuilder output = new StringBuilder();
             int data;
-            while ((data = i.read()) != 0) {
+            while ((data = i.read()) != 1) {
                 if (filter.test((char) data)) {
                     output.append((char) data);
                 }
