@@ -16,11 +16,11 @@ public class AccountStorage {
     }
 
     public synchronized boolean update(Account account) {
-        return accounts.put(account.id(), account) == account;
+        return accounts.put(account.id(), account) !=null;
     }
 
     public synchronized boolean delete(int id) {
-        return accounts.remove(id) == accounts.get(id);
+        return accounts.remove(id) != null;
     }
 
     public synchronized Optional<Account> getById(int id) {
@@ -28,14 +28,18 @@ public class AccountStorage {
     }
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount can't be less than or equal to 0");
-        }
         boolean isUpdateSourceAndTarget = false;
-        if (accounts.get(fromId).amount() >= amount && fromId != toId) {
-            Account sourceAcc = new Account(fromId, accounts.get(fromId).amount() - amount);
-            Account targetAcc = new Account(toId, accounts.get(toId).amount() + amount);
-            isUpdateSourceAndTarget = update(sourceAcc) & update(targetAcc);
+        if(getById(fromId).isPresent() && getById(toId).isPresent()) {
+            if (amount <= 0) {
+                throw new IllegalArgumentException("Amount can't be less than or equal to 0");
+            }
+            if (accounts.get(fromId).amount() >= amount && fromId != toId) {
+                Account sourceAcc = new Account(fromId, accounts.get(fromId).amount() - amount);
+                Account targetAcc = new Account(toId, accounts.get(toId).amount() + amount);
+                update(sourceAcc);
+                update(targetAcc);
+                isUpdateSourceAndTarget = true;
+            }
         }
         return isUpdateSourceAndTarget;
     }
