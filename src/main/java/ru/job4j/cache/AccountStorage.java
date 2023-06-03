@@ -28,19 +28,21 @@ public class AccountStorage {
     }
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
-        boolean isUpdateSourceAndTarget = false;
-        if (getById(fromId).isPresent() && getById(toId).isPresent()) {
+        boolean isTransfer = false;
+        Optional<Account> accFromId = getById(fromId);
+        Optional<Account> accToId = getById(toId);
+        if (accFromId.isPresent() && accToId.isPresent()) {
             if (amount <= 0) {
                 throw new IllegalArgumentException("Amount can't be less than or equal to 0");
             }
-            if (accounts.get(fromId).amount() >= amount && fromId != toId) {
-                Account sourceAcc = new Account(fromId, accounts.get(fromId).amount() - amount);
-                Account targetAcc = new Account(toId, accounts.get(toId).amount() + amount);
+            if (accFromId.get().amount() >= amount && fromId != toId) {
+                Account sourceAcc = new Account(fromId, accFromId.get().amount() - amount);
+                Account targetAcc = new Account(toId, accToId.get().amount() + amount);
                 update(sourceAcc);
                 update(targetAcc);
-                isUpdateSourceAndTarget = true;
+                isTransfer = true;
             }
         }
-        return isUpdateSourceAndTarget;
+        return isTransfer;
     }
 }
