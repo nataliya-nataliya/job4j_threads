@@ -13,11 +13,7 @@ public class CountBarrier {
 
     public void count() {
         synchronized (monitor) {
-            if (count < total) {
-                count++;
-            } else {
-                monitor.notifyAll();
-            }
+            count++;
         }
     }
 
@@ -27,7 +23,7 @@ public class CountBarrier {
                 try {
                     monitor.wait();
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Thread.currentThread().interrupt();
                 }
             }
         }
