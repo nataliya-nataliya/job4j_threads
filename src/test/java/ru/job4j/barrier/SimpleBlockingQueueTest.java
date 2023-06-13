@@ -16,13 +16,21 @@ class SimpleBlockingQueueTest {
         Thread producer = new Thread(
                 () -> {
                     for (int i = 1; i <= numberOfElements; i++) {
-                        simpleBlockingQueue.offer(i);
+                        try {
+                            simpleBlockingQueue.offer(i);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, "producer thread");
         Thread consumer = new Thread(
                 () -> {
                     for (int i = 1; i <= numberOfElements; i++) {
-                        numbersFromQueue.add(simpleBlockingQueue.poll());
+                        try {
+                            numbersFromQueue.add(simpleBlockingQueue.poll());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, "consumer thread");
         producer.start();
@@ -40,13 +48,21 @@ class SimpleBlockingQueueTest {
         Thread producer = new Thread(
                 () -> {
                     for (int i = 1; i <= numberOfElements; i++) {
-                        simpleBlockingQueue.offer(i);
+                        try {
+                            simpleBlockingQueue.offer(i);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, "producer thread");
         Thread consumer = new Thread(
                 () -> {
                     for (int i = 1; i <= numberOfElements; i++) {
-                        numbersFromQueue.add(simpleBlockingQueue.poll());
+                        try {
+                            numbersFromQueue.add(simpleBlockingQueue.poll());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, "consumer thread");
         producer.start();
@@ -54,7 +70,7 @@ class SimpleBlockingQueueTest {
         producer.join();
         consumer.join();
         Assertions.assertEquals(List.of(2, 3, 4), new ArrayList<>(
-                numbersFromQueue.subList(numberOfElements - simpleBlockingQueue.queueCapacity, numberOfElements)));
+                numbersFromQueue.subList(numberOfElements - simpleBlockingQueue.getQueueCapacity(), numberOfElements)));
     }
 
     @Test
@@ -65,13 +81,21 @@ class SimpleBlockingQueueTest {
         Thread producer = new Thread(
                 () -> {
                     for (int i = 1; i <= numberOfElements; i++) {
-                        simpleBlockingQueue.offer(i);
+                        try {
+                            simpleBlockingQueue.offer(i);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, "producer thread");
         Thread consumer = new Thread(
                 () -> {
                     for (int i = 1; i <= numberOfElements; i++) {
-                        numbersFromQueue.add(simpleBlockingQueue.poll());
+                        try {
+                            numbersFromQueue.add(simpleBlockingQueue.poll());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, "consumer thread");
         producer.start();

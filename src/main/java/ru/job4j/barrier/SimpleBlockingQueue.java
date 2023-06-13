@@ -8,36 +8,30 @@ import java.util.Queue;
 public class SimpleBlockingQueue<T> {
     @GuardedBy("this")
     private final Queue<T> queue = new LinkedList<>();
-    int queueCapacity;
-    int filledCapacity = 0;
+    private final int queueCapacity;
 
     public SimpleBlockingQueue(int queueCapacity) {
         this.queueCapacity = queueCapacity;
     }
 
-    public synchronized void offer(T value) {
-        while (filledCapacity >= queueCapacity) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        filledCapacity++;
-        notify();
-        queue.offer(value);
+    public int getQueueCapacity() {
+        return queueCapacity;
     }
 
-    public synchronized T poll() {
-        while (filledCapacity < 1) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+    public synchronized void offer(T value) throws InterruptedException {
+        while (queue.size() >= queueCapacity) {
+            wait();
         }
-        filledCapacity--;
+        queue.offer(value);
         notify();
-        return queue.poll();
+    }
+
+    public synchronized T poll() throws InterruptedException {
+        while (queue.size() == 0) {
+            wait();
+        }
+        T result = queue.poll();
+        notify();
+        return result;
     }
 }
