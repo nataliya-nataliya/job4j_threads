@@ -108,7 +108,7 @@ class SimpleBlockingQueueTest {
     }
 
     @Test
-    public void whenFetchAllThenGetIt() throws InterruptedException {
+    public void whenFetchAllIntegerDataThenGetIt() throws InterruptedException {
         final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
         final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(5);
         Thread producer = new Thread(
@@ -140,5 +140,41 @@ class SimpleBlockingQueueTest {
         consumer.interrupt();
         consumer.join();
         Assertions.assertEquals((Arrays.asList(0, 1, 2, 3, 4)), buffer);
+    }
+
+    @Test
+    public void whenFetchAllStringDataThenGetIt1() throws InterruptedException {
+        final CopyOnWriteArrayList<String> buffer = new CopyOnWriteArrayList<>();
+        final SimpleBlockingQueue<String> queue = new SimpleBlockingQueue<>(5);
+        Thread producer = new Thread(
+                () -> {
+                    try {
+                        queue.offer("a");
+                        queue.offer("b");
+                        queue.offer("c");
+
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
+        producer.start();
+        Thread consumer = new Thread(
+                () -> {
+                    while (!queue.isEmpty() || !Thread.currentThread().isInterrupted()) {
+                        try {
+                            buffer.add(queue.poll());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+        );
+        consumer.start();
+        producer.join();
+        consumer.interrupt();
+        consumer.join();
+        Assertions.assertEquals((Arrays.asList("a", "b", "c")), buffer);
     }
 }
